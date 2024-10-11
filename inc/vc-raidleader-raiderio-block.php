@@ -16,6 +16,12 @@ vc_map(array(
             'param_name'  => 'title',
             'description' => esc_html__('Enter text used as widget title (Note: located above content element).', 'alchemists'),
         ),
+        array(
+            'type'        => 'textarea',
+            'heading'     => esc_html__('Sobre el Raid Leader', 'alchemists'),
+            'param_name'  => 'sobre_rl',
+            'description' => esc_html__('Enter the Raid Leader Description.', 'alchemists'),
+        ),
         vc_map_add_css_animation(),
         array(
             'type'        => 'el_id',
@@ -44,6 +50,7 @@ if (class_exists('WPBakeryShortCode')) {
             // Atributos del shortcode
             $atts = shortcode_atts(array(
                 'title'        => '',
+                'sobre_rl'     => '',
                 'el_id'        => '',
                 'el_class'     => '',
                 'css'          => '',
@@ -52,6 +59,7 @@ if (class_exists('WPBakeryShortCode')) {
 
             // Definir variables
             $title = $atts['title'];
+            $sobre_rl = $atts['sobre_rl'];
             $el_id = $atts['el_id'];
             $el_class = $atts['el_class'];
             $css = $atts['css'];
@@ -129,7 +137,7 @@ if (class_exists('WPBakeryShortCode')) {
                                                 </span>
                                             <?php endif; ?>
                                         </header>
-
+                                        <p><?php echo esc_html($sobre_rl); ?></p>
                                         <?php if (!empty($title)) : ?>
                                             <div class="player-icons">
                                                 <div class="race-class">
