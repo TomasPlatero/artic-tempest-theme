@@ -64,7 +64,6 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
             // Definir los rangos
             $rank_names = array(
                 0 => 'Guild Master',
-                1 => 'Raid Leader',
                 2 => 'Oficial',
                 4 => 'Raider Core',
                 5 => 'Raider',
@@ -73,7 +72,7 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
 
             // Filtrar y ordenar los miembros por rango
             $filtered_members = array_filter( $roster_data['members'], function( $member ) {
-                return in_array( $member['rank'], array( 0, 1, 2, 4, 5, 6 ) );
+                return in_array( $member['rank'], array( 0, 2, 4, 5, 6 ) );
             });
 
             usort( $filtered_members, function( $a, $b ) {

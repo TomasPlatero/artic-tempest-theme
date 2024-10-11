@@ -34,3 +34,10 @@ figure.team-roster__class-icon{
     width: 25px;
     margin-right: 5px;
 }
+
+.alc-staff__photo img{
+    width: 200px;
+    border: 1px solid #4b3b60;
+    border-radius: 4px;
+    background-color: #392d49;
+}
