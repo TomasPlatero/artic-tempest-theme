@@ -1,0 +1,36 @@
+.team-roster__content{
+    width: 100%;
+}
+
+.player-icons {
+    flex-wrap: wrap;
+    display: flex;
+    align-content: space-between;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.race-class {
+    display: flex;
+}
+
+figure.team-roster__race-icon {
+    width: 35px;
+    border: 1px solid;
+}
+
+figure.team-roster__class-icon{
+    width: 35px;
+    border: 1px solid;
+    margin-left: 10px;
+}
+
+.social-icons {
+    margin-top: 10px;
+    display: flex;
+}
+
+.social-icons a {
+    width: 25px;
+    margin-right: 5px;
+}
