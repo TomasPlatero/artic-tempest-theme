@@ -109,7 +109,7 @@ figure.team-roster__class-icon{
 
 .timeline-fill {
     height: 100%;
-    background-color: #4caf50;
+    background-color: #38a9ff;
     position: absolute;
     top: 0;
     left: 0;
@@ -129,7 +129,7 @@ figure.team-roster__class-icon{
 
 .timeline-content h5 {
     margin: 5px 0;
-    font-size: 14px;
+    font-size: 10px;
 }
 
 .timeline-content p {
