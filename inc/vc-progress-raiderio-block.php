@@ -23,6 +23,18 @@ vc_map(array(
             'param_name'  => 'raid_slug',
             'description' => esc_html__('Enter the slug of the target raid (nerubar-palace).', 'alchemists'),
         ),
+        array(
+            'type'        => 'dropdown',
+            'heading'     => esc_html__('Progress Difficulty', 'alchemists'),
+            'param_name'  => 'progress_difficulty',
+            'value'       => array(
+                esc_html__('Ninguna', 'alchemists') => '',
+                esc_html__('Normal', 'alchemists') => 'normal',
+                esc_html__('Heroic', 'alchemists') => 'heroic',
+                esc_html__('Mythic', 'alchemists') => 'mythic'
+            ),
+            'description' => esc_html__('Select the difficulty for progress display.', 'alchemists'),
+        ),
         vc_map_add_css_animation(),
         array(
             'type'        => 'el_id',
@@ -50,12 +62,13 @@ if (class_exists('WPBakeryShortCode')) {
         protected function content($atts, $content = null) {
             // Atributos del shortcode
             $atts = shortcode_atts(array(
-                'title'        => '',
-                'raid_slug'    => '',
-                'el_id'        => '',
-                'el_class'     => '',
-                'css'          => '',
-                'css_animation'=> '',
+                'title'             => '',
+                'raid_slug'         => '',
+                'progress_difficulty'   => '',
+                'el_id'             => '',
+                'el_class'          => '',
+                'css'               => '',
+                'css_animation'     => '',
             ), $atts);
 
             // Definir variables
@@ -64,6 +77,7 @@ if (class_exists('WPBakeryShortCode')) {
             $el_class = $atts['el_class'];
             $css = $atts['css'];
             $css_animation = $atts['css_animation'];
+            $difficulty = $atts['progress_difficulty'];
 
             // Obtener datos de la base de datos
             $region = get_option('blizzard_api_region');
@@ -73,14 +87,27 @@ if (class_exists('WPBakeryShortCode')) {
             // Obtener datos de progreso de Raider.IO
             $raid_progress_data = Blizzard_Api_RaiderIO::get_guild_raid_progress($region, $realm, $guild);
 
-            // Procesar los datos de progreso
+            // Procesar los datos de progreso según la dificultad seleccionada
             $raid_name = $atts['raid_slug'];
             $raid_progress = $raid_progress_data['raid_progression'][$raid_name];
 
             $total_bosses = $raid_progress['total_bosses'];
-            $normal_defeated_bosses = $raid_progress['normal_bosses_killed'];
-            $heroic_defeated_bosses = $raid_progress['heroic_bosses_killed'];
-            $mythic_defeated_bosses = $raid_progress['mythic_bosses_killed'];
+
+            // Variables de progreso según la dificultad seleccionada
+            switch ($difficulty) {
+                case 'normal':
+                    $defeated_bosses = $raid_progress['normal_bosses_killed'];
+                    break;
+                case 'heroic':
+                    $defeated_bosses = $raid_progress['heroic_bosses_killed'];
+                    break;
+                case 'mythic':
+                    $defeated_bosses = $raid_progress['mythic_bosses_killed'];
+                    break;
+                default:
+                    $defeated_bosses = $raid_progress['heroic_bosses_killed']; // Heroico por defecto
+                    break;
+            }
 
             // Lista de jefes y sus imágenes en tu tema hijo
             $bosses = array(
@@ -118,13 +145,11 @@ if (class_exists('WPBakeryShortCode')) {
                         <div class="timeline-item-up">
                             <?php foreach ($bosses as $boss) : 
                                 // Verificar si el jefe está derrotado en las distintas dificultades
-                                $is_defeated_normal = $normal_defeated_bosses >= $boss['id']; 
-                                $is_defeated_heroic = $heroic_defeated_bosses >= $boss['id'];
-                                $is_defeated_mythic = $mythic_defeated_bosses >= $boss['id'];
+                                $is_defeated = $defeated_bosses >= $boss['id']; 
                             ?>
                             <div class="timeline-boss">
                                 <div class="timeline-img">
-                                    <img class="<?php echo ($is_defeated_heroic ? 'blurred' : ''); ?>" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/<?php echo esc_attr($boss['image']); ?>" alt="<?php echo esc_attr($boss['name']); ?>" />
+                                    <img class="<?php echo ($is_defeated ? 'blurred' : ''); ?>" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/<?php echo esc_attr($boss['image']); ?>" alt="<?php echo esc_attr($boss['name']); ?>" />
                                 </div>
                                 <div class="timeline-content">
                                     <h5><?php echo esc_html($boss['name']); ?></h5>
@@ -141,16 +166,21 @@ if (class_exists('WPBakeryShortCode')) {
                 </div>
             </div>
 
+
             <!-- jQuery Script to Update Progress Bar -->
             <script>
                 jQuery(document).ready(function($) {
                     var totalBosses = <?php echo $total_bosses; ?>;
-                    var normalDefeatedBosses = <?php echo $normal_defeated_bosses; ?>;
-                    var heroicDefeatedBosses = <?php echo $heroic_defeated_bosses; ?>;
-                    var mythicDefeatedBosses = <?php echo $mythic_defeated_bosses; ?>;
+                    var defeated_bosses = <?php echo $defeated_bosses; ?>;
                     var widthComponent = document.querySelector(".alc-raid-progress-timeline").offsetWidth;
                     var bossboxComponent = document.querySelector(".timeline-boss").offsetWidth / 2;
-                    var progressPercentage = ((widthComponent/totalBosses)*heroicDefeatedBosses) - bossboxComponent;
+                    var progressPercentage = ((widthComponent/totalBosses)*defeated_bosses) - bossboxComponent;
+
+                        if(defeated_bosses == totalBosses){
+
+                            var progressPercentage = widthComponent;
+
+                        }
                     // Animate the timeline-fill to match the defeated bosses
                     $('.timeline-fill').animate({
                         width: progressPercentage + 'px'
