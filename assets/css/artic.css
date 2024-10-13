@@ -1,8 +1,19 @@
+
+/* Header */
 .header-banner img{
     height: 60px;
     width: 420px;
     object-fit: cover;
 }
+
+/* Footer */
+
+.sponsors__item {
+    width: 250px;
+}
+
+
+/* ACL Team Roster Block */
 .team-roster__content{
     width: 100%;
 }
@@ -46,6 +57,9 @@ figure.team-roster__class-icon{
     border-radius: 4px;
     background-color: #392d49;
 }
+
+/* ACL Raid Progress Block */
+
 
 .alc-raid-progress-timeline {
     width: 100%;
