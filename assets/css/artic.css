@@ -1,3 +1,8 @@
+.header-banner img{
+    height: 60px;
+    width: 420px;
+    object-fit: cover;
+}
 .team-roster__content{
     width: 100%;
 }
