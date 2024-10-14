@@ -61,10 +61,15 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
             // Obtener datos de RaiderIO
             $roster_data = get_transient( 'blizzard_guild_roster_data' );
 
+            if ( empty( $roster_data ) || !isset($roster_data['members']) ) {
+                // Si no hay datos, mostrar el diseño de precarga
+                return $this->render_loading_skeleton( $atts['columns'] );
+            }
+
             // Definir los rangos
             $rank_names = array(
                 0 => 'Guild Master',
-                2 => 'Oficial',
+                2 => 'Officer',
                 4 => 'Raider Core',
                 5 => 'Raider',
                 6 => 'Trial',
@@ -100,10 +105,17 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
 
                         // Obtener la información del miembro, incluyendo la URL de la imagen
                         $character_info = get_transient( "raiderio_member_". $member['character']['name']);
+                        if (empty($character_info)) {
+                            // Si falta la información del miembro, mostrar una precarga
+                            echo $this->render_loading_skeleton_item();
+                            continue;
+                        }
+
                         $class_name = isset($character_info['class']) ? sanitize_title($character_info['class']) : '';
                         $race_name = isset($character_info['race']) ? sanitize_title($character_info['race']) : '';
                         $gender = isset($character_info['gender']) && strtolower($character_info['gender']) === 'female' ? 'female' : 'male';
                         $region = get_option( "blizzard_api_region");
+
                         // Construir la URL del icono de la raza y clase
                         $base_path = get_stylesheet_directory_uri() . '/assets/images';
                         $race_icon_url = "{$base_path}/race_{$race_name}_{$gender}.jpg";
@@ -134,12 +146,11 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
                                     echo '</div>';
 
                                     echo '<div class="social-icons">';
-
                                     echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
                                     echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
                                     echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
-                            echo '</div>';
-                            echo '</div>';
+                                    echo '</div>';
+                                echo '</div>';
                             echo '</div>';
                         echo '</div>';
                         echo '</div>';
@@ -150,6 +161,37 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
             }
 
             echo '</div>'; // Cerrar sp-template-player-gallery
+            return ob_get_clean();
+        }
+
+        // Función para renderizar placeholders (skeleton) si no hay datos
+        protected function render_loading_skeleton( $columns ) {
+            ob_start();
+            echo '<div class="sp-template sp-template-player-gallery sp-template-gallery">';
+            echo '<div class="team-roster team-roster--grid-sm team-roster--grid-col-' . esc_attr( $columns ) . '">';
+            for ( $i = 0; $i < 6; $i++ ) {
+                echo $this->render_loading_skeleton_item();
+            }
+            echo '</div>';
+            echo '</div>';
+            return ob_get_clean();
+        }
+
+        // Función para renderizar un item de placeholder
+        protected function render_loading_skeleton_item() {
+            ob_start();
+            echo '<div class="team-roster__item loading-skeleton">';
+                echo '<div class="team-roster__holder">';
+                    echo '<figure class="team-roster__img"><div class="skeleton-avatar"></div></figure>';
+                    echo '<div class="team-roster__content">';
+                        echo '<h4 class="team-roster__name"><div class="skeleton-name"></div></h4>';
+                        echo '<div class="skeleton-icons">';
+                            echo '<div class="skeleton-race-class"></div>';
+                            echo '<div class="skeleton-social-icons"></div>';
+                        echo '</div>';
+                    echo '</div>';
+                echo '</div>';
+            echo '</div>';
             return ob_get_clean();
         }
     }

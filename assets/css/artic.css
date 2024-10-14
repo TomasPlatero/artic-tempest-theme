@@ -161,6 +161,35 @@ figure.team-roster__class-icon{
     font-weight: bold;
 }
 
+.loading-skeleton {
+    position: relative;
+}
+
+.skeleton-avatar {
+    width: 84px;
+    height: 145px;
+    background-color: #ddd;
+    margin: 0 auto;
+}
+
+.skeleton-name {
+    width: 80%;
+    height: 20px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+.skeleton-icons .skeleton-race-class,
+.skeleton-icons .skeleton-social-icons {
+    width: 40px;
+    height: 40px;
+    background-color: #ddd;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+
+
 @media only screen and (max-width: 1024px) {
     .timeline-bar {
         display:none;
@@ -170,3 +199,5 @@ figure.team-roster__class-icon{
         overflow-x: auto;
     }
 }
+
+
