@@ -160,3 +160,13 @@ figure.team-roster__class-icon{
     color: green;
     font-weight: bold;
 }
+
+@media only screen and (max-width: 1024px) {
+    .timeline-bar {
+        display:none;
+    }
+
+    .timeline-item-up {
+        overflow-x: auto;
+    }
+}
