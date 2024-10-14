@@ -201,3 +201,8 @@ figure.team-roster__class-icon{
 }
 
 
+@media only screen and (max-width: 479px) {
+    .team-roster--grid-sm .team-roster__img {
+        width: 25%;
+    }
+}
