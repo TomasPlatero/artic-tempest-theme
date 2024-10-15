@@ -130,25 +130,27 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
 
                         echo '<div class="team-roster__item">';
                             echo '<div class="team-roster__holder">';
-                            echo '<figure class="team-roster__img"><img decoding="async" src="' . $avatar_url . '" alt="' . esc_attr( $character_info['name'] ) . '"></figure>';
+                            echo '<figure class="team-roster__img">
+                            <img decoding="async" src="' . $avatar_url . '" alt="' . esc_attr( $character_info['name'] ) . '" title="' . esc_attr( $character_info['name'] ) . '">
+                            </figure>';
                             echo '<div class="team-roster__content">';
                                 echo '<h4 class="team-roster__name">' . esc_html( $character_info['name'] ) . '</h4>';
                                 echo '<div class="player-icons">';
                                     echo '<div class="race-class">';
                                     // Mostrar el icono de la raza
                                     if ($race_name) {
-                                        echo '<figure class="team-roster__race-icon"><img src="' . esc_url($race_icon_url) . '" alt="' . esc_attr($race_name) . '"></figure>';
+                                        echo '<figure class="team-roster__race-icon"><img src="' . esc_url($race_icon_url) . '" alt="' . esc_attr($race_name) . '" title="' . esc_attr($race_name) .'"></figure>';
                                     }
                                     // Mostrar el icono de la clase
                                     if ($class_name) {
-                                        echo '<figure class="team-roster__class-icon"><img src="' . esc_url($class_icon_url) . '" alt="' . esc_attr($class_name) . '"></figure>';
+                                        echo '<figure class="team-roster__class-icon"><img src="' . esc_url($class_icon_url) . '" alt="' . esc_attr($class_name) . '" title="'. esc_attr($class_name) . '"></figure>';
                                     }
                                     echo '</div>';
 
                                     echo '<div class="social-icons">';
-                                    echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
-                                    echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
-                                    echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $character_info['name'] ) . '"></a>';
+                                    echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $character_info['name'] ) . '" title="RaiderIO"></a>';
+                                    echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $character_info['name'] ) . '" title="WarcraftLogs"></a>';
+                                    echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $character_info['name'] ) . '" title="WoW Armory"></a>';
                                     echo '</div>';
                                 echo '</div>';
                             echo '</div>';
