@@ -149,7 +149,7 @@ if (class_exists('WPBakeryShortCode')) {
                             ?>
                             <div class="timeline-boss">
                                 <div class="timeline-img">
-                                    <img class="<?php echo ($is_defeated ? 'blurred' : ''); ?>" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/<?php echo esc_attr($boss['image']); ?>" alt="<?php echo esc_attr($boss['name']); ?>" />
+                                    <img class="<?php echo ($is_defeated ? 'blurred' : ''); ?>" src="<?php echo get_stylesheet_directory_uri(); ?>/assets/images/<?php echo esc_attr($boss['image']); ?>" alt="<?php echo esc_attr($boss['name']); ?>" title="<?php echo esc_attr($boss['name']); ?>" />
                                 </div>
                                 <div class="timeline-content">
                                     <h5><?php echo esc_html($boss['name']); ?></h5>
