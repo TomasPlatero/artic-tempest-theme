@@ -89,72 +89,97 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
             echo '<div class="sp-template sp-template-player-gallery sp-template-gallery">';
 
             // Iterar sobre cada rango y agrupar a los miembros correspondientes
-            foreach ( $rank_names as $rank => $rank_name ) {
-                $members_for_rank = array_filter( $filtered_members, function( $member ) use ( $rank ) {
+            foreach ($rank_names as $rank => $rank_name) {
+                $members_for_rank = array_filter($filtered_members, function ($member) use ($rank) {
                     return $member['rank'] === $rank;
                 });
-
-                if ( ! empty( $members_for_rank ) ) {
-                    echo '<div class="card__header card__header--single"><h4 class="sp-gallery-group-name player-group-name player-gallery-group-name">' . esc_html( $rank_name ) . '</h4></div>';
-                    echo '<div class="team-roster team-roster--grid-sm team-roster--grid-col-' . esc_attr( $atts['columns'] ) . '">';
-
-                    foreach ( $members_for_rank as $member ) {
-                        if ( $atts['number'] !== '-1' && --$atts['number'] < 0 ) {
+            
+                if (!empty($members_for_rank)) {
+                    // Encabezado de grupo de rango
+                    echo '<div class="card__header card__header--single">';
+                    echo '<h4 class="sp-gallery-group-name player-group-name player-gallery-group-name">' . esc_html($rank_name) . '</h4>';
+                    echo '</div>';
+            
+                    // Contenedor del equipo
+                    echo '<div class="team-roster team-roster--grid-sm team-roster--grid-col-' . esc_attr($atts['columns']) . '">';
+            
+                    foreach ($members_for_rank as $member) {
+                        if ($atts['number'] !== '-1' && --$atts['number'] < 0) {
                             break;
                         }
-
+            
                         // Obtener la información del miembro
                         $class_name = isset($member['class']) ? sanitize_title($member['class']) : '';
                         $race_name = isset($member['race']) ? sanitize_title($member['race']) : '';
                         $gender = isset($member['gender']) && strtolower($member['gender']) === 'female' ? 'female' : 'male';
-                        $region = get_option( "blizzard_api_region");
-
+                        $region = get_option('blizzard_api_region');
+            
                         // Construir la URL del icono de la raza y clase
                         $base_path = get_stylesheet_directory_uri() . '/assets/images';
                         $race_icon_url = "{$base_path}/race_{$race_name}_{$gender}.jpg";
                         $class_icon_url = "{$base_path}/{$class_name}.jpg";
-
-                        $raiderio_url = "https://raider.io/characters/".$region."/".$member['realm']."/".$member['name'];
-                        $warcraftlogs_url = "https://www.warcraftlogs.com/character/".$region."/".$member['realm']."/".$member['name'];
-                        $wow_url = "https://worldofwarcraft.blizzard.com/es-es/character/".$region."/".$member['realm']."/".$member['name'];
-
+            
+                        // URLs de perfiles externos
+                        $raiderio_url = "https://raider.io/characters/{$region}/{$member['realm']}/{$member['name']}";
+                        $warcraftlogs_url = "https://www.warcraftlogs.com/character/{$region}/{$member['realm']}/{$member['name']}";
+                        $realm_slug = str_replace(' ', '-', $member['realm']);
+                        $wow_url = "https://worldofwarcraft.blizzard.com/es-es/character/{$region}/{$realm_slug}/{$member['name']}";
+                                    
                         // Obtener la URL de la imagen del personaje o usar una imagen predeterminada
                         $avatar_url = isset($member['thumbnail_url']) ? esc_url($member['thumbnail_url']) : "{$base_path}/placeholder-140x210.jpg";
-
+            
+                        // Renderizar el miembro
                         echo '<div class="team-roster__item">';
                             echo '<div class="team-roster__holder">';
-                            echo '<figure class="team-roster__img">
-                            <img decoding="async" src="' . $avatar_url . '" alt="' . esc_attr( $member['name'] ) . '" title="' . esc_attr( $member['name'] ) . '">
-                            </figure>';
-                            echo '<div class="team-roster__content">';
-                                echo '<h4 class="team-roster__name">' . esc_html( $member['name'] ) . '</h4>';
-                                echo '<div class="player-icons">';
-                                    echo '<div class="race-class">';
-                                    // Mostrar el icono de la raza
-                                    if ($race_name) {
-                                        echo '<figure class="team-roster__race-icon"><img src="' . esc_url($race_icon_url) . '" alt="' . esc_attr($race_name) . '" title="' . esc_attr($race_name) .'"></figure>';
-                                    }
-                                    // Mostrar el icono de la clase
-                                    if ($class_name) {
-                                        echo '<figure class="team-roster__class-icon"><img src="' . esc_url($class_icon_url) . '" alt="' . esc_attr($class_name) . '" title="'. esc_attr($class_name) . '"></figure>';
-                                    }
-                                    echo '</div>';
-
-                                    echo '<div class="social-icons">';
-                                    echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $member['name'] ) . '" title="RaiderIO"></a>';
-                                    echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $member['name'] ) . '" title="WarcraftLogs"></a>';
-                                    echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $member['name'] ) . '" title="WoW Armory"></a>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</div>';
-                        echo '</div>';
+                                echo '<figure class="team-roster__img">';
+                                    echo '<img decoding="async" src="' . esc_url($avatar_url) . '" alt="' . esc_attr($member['name']) . '" title="' . esc_attr($member['name']) . '">';
+                                echo '</figure>';
+                                echo '<div class="team-roster__content">';
+                                    echo '<h4 class="team-roster__name">' . esc_html($member['name']) . '</h4>';
+                                    echo '<div class="player-icons">';
+                                        echo '<div class="race-class">';
+            
+                                        // Mostrar el icono de la raza
+                                        if ($race_name) {
+                                            echo '<figure class="team-roster__race-icon">';
+                                                echo '<img src="' . esc_url($race_icon_url) . '" alt="' . esc_attr($race_name) . '" title="' . esc_attr($race_name) . '">';
+                                            echo '</figure>';
+                                        }
+            
+                                        // Mostrar el icono de la clase
+                                        if ($class_name) {
+                                            echo '<figure class="team-roster__class-icon">';
+                                                echo '<img src="' . esc_url($class_icon_url) . '" alt="' . esc_attr($class_name) . '" title="' . esc_attr($class_name) . '">';
+                                            echo '</figure>';
+                                        }
+            
+                                        echo '</div>'; // Cerrar div race-class
+            
+                                        // Íconos de redes sociales
+                                        echo '<div class="social-icons">';
+                                            echo '<a href="' . esc_url($raiderio_url) . '" target="_blank" rel="noopener noreferrer">';
+                                                echo '<img decoding="async" src="' . esc_url(get_stylesheet_directory_uri() . '/assets/images/raiderio.png') . '" alt="' . esc_attr($member['name']) . '" title="RaiderIO">';
+                                            echo '</a>';
+                                            echo '<a href="' . esc_url($warcraftlogs_url) . '" target="_blank" rel="noopener noreferrer">';
+                                                echo '<img decoding="async" src="' . esc_url(get_stylesheet_directory_uri() . '/assets/images/warcraftlogs.png') . '" alt="' . esc_attr($member['name']) . '" title="Warcraft Logs">';
+                                            echo '</a>';
+                                            echo '<a href="' . esc_url($wow_url) . '" target="_blank" rel="noopener noreferrer">';
+                                                echo '<img decoding="async" src="' . esc_url(get_stylesheet_directory_uri() . '/assets/images/wow.png') . '" alt="' . esc_attr($member['name']) . '" title="WoW Armory">';
+                                            echo '</a>';
+                                        echo '</div>'; // Cerrar div social-icons
+            
+                                    echo '</div>'; // Cerrar div player-icons
+                                echo '</div>'; // Cerrar div team-roster__content
+                            echo '</div>'; // Cerrar div team-roster__holder
+                        echo '</div>'; // Cerrar div team-roster__item
                     }
-
-                    echo '</div>'; // Cerrar el contenedor del grupo de rango
+            
+                    echo '</div>'; // Cerrar div team-roster
                 }
             }
-
+            
             echo '</div>'; // Cerrar sp-template-player-gallery
+            
             return ob_get_clean();
         }
 
