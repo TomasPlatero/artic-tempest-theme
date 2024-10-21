@@ -58,10 +58,10 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
                 'squad_number'  => '1',
             ), $atts );
 
-            // Obtener datos de RaiderIO
-            $roster_data = get_transient( 'blizzard_guild_roster_data' );
+            // Obtener datos de miembros guardados en la base de datos
+            $roster_data = get_option( 'blizzard_guild_members', array() );
 
-            if ( empty( $roster_data ) || !isset($roster_data['members']) ) {
+            if ( empty( $roster_data ) || !is_array( $roster_data ) ) {
                 // Si no hay datos, mostrar el diseño de precarga
                 return $this->render_loading_skeleton( $atts['columns'] );
             }
@@ -76,7 +76,7 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
             );
 
             // Filtrar y ordenar los miembros por rango
-            $filtered_members = array_filter( $roster_data['members'], function( $member ) {
+            $filtered_members = array_filter( $roster_data, function( $member ) {
                 return in_array( $member['rank'], array( 0, 2, 4, 5, 6 ) );
             });
 
@@ -103,17 +103,10 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
                             break;
                         }
 
-                        // Obtener la información del miembro, incluyendo la URL de la imagen
-                        $character_info = get_transient( "raiderio_member_". $member['character']['name']);
-                        if (empty($character_info)) {
-                            // Si falta la información del miembro, mostrar una precarga
-                            echo $this->render_loading_skeleton_item();
-                            continue;
-                        }
-
-                        $class_name = isset($character_info['class']) ? sanitize_title($character_info['class']) : '';
-                        $race_name = isset($character_info['race']) ? sanitize_title($character_info['race']) : '';
-                        $gender = isset($character_info['gender']) && strtolower($character_info['gender']) === 'female' ? 'female' : 'male';
+                        // Obtener la información del miembro
+                        $class_name = isset($member['class']) ? sanitize_title($member['class']) : '';
+                        $race_name = isset($member['race']) ? sanitize_title($member['race']) : '';
+                        $gender = isset($member['gender']) && strtolower($member['gender']) === 'female' ? 'female' : 'male';
                         $region = get_option( "blizzard_api_region");
 
                         // Construir la URL del icono de la raza y clase
@@ -121,20 +114,20 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
                         $race_icon_url = "{$base_path}/race_{$race_name}_{$gender}.jpg";
                         $class_icon_url = "{$base_path}/{$class_name}.jpg";
 
-                        $raiderio_url = "https://raider.io/characters/".$region."/".$member['character']['realm']."/".$member['character']['name'];
-                        $warcraftlogs_url = "https://www.warcraftlogs.com/character/".$region."/".$member['character']['realm']."/".$member['character']['name'];
-                        $wow_url = "https://worldofwarcraft.blizzard.com/es-es/character/".$region."/".$member['character']['realm']."/".$member['character']['name'];
+                        $raiderio_url = "https://raider.io/characters/".$region."/".$member['realm']."/".$member['name'];
+                        $warcraftlogs_url = "https://www.warcraftlogs.com/character/".$region."/".$member['realm']."/".$member['name'];
+                        $wow_url = "https://worldofwarcraft.blizzard.com/es-es/character/".$region."/".$member['realm']."/".$member['name'];
 
                         // Obtener la URL de la imagen del personaje o usar una imagen predeterminada
-                        $avatar_url = isset($character_info['thumbnail_url']) ? esc_url($character_info['thumbnail_url']) : "{$base_path}/placeholder-140x210.jpg";
+                        $avatar_url = isset($member['thumbnail_url']) ? esc_url($member['thumbnail_url']) : "{$base_path}/placeholder-140x210.jpg";
 
                         echo '<div class="team-roster__item">';
                             echo '<div class="team-roster__holder">';
                             echo '<figure class="team-roster__img">
-                            <img decoding="async" src="' . $avatar_url . '" alt="' . esc_attr( $character_info['name'] ) . '" title="' . esc_attr( $character_info['name'] ) . '">
+                            <img decoding="async" src="' . $avatar_url . '" alt="' . esc_attr( $member['name'] ) . '" title="' . esc_attr( $member['name'] ) . '">
                             </figure>';
                             echo '<div class="team-roster__content">';
-                                echo '<h4 class="team-roster__name">' . esc_html( $character_info['name'] ) . '</h4>';
+                                echo '<h4 class="team-roster__name">' . esc_html( $member['name'] ) . '</h4>';
                                 echo '<div class="player-icons">';
                                     echo '<div class="race-class">';
                                     // Mostrar el icono de la raza
@@ -148,13 +141,12 @@ if ( class_exists( 'WPBakeryShortCode' ) ) {
                                     echo '</div>';
 
                                     echo '<div class="social-icons">';
-                                    echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $character_info['name'] ) . '" title="RaiderIO"></a>';
-                                    echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $character_info['name'] ) . '" title="WarcraftLogs"></a>';
-                                    echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $character_info['name'] ) . '" title="WoW Armory"></a>';
+                                    echo '<a href="' . $raiderio_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/raiderio.png" alt="' . esc_attr( $member['name'] ) . '" title="RaiderIO"></a>';
+                                    echo '<a href="' . $warcraftlogs_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/warcraftlogs.png" alt="' . esc_attr( $member['name'] ) . '" title="WarcraftLogs"></a>';
+                                    echo '<a href="' . $wow_url . '" target="_blank"><img decoding="async" src="'.get_stylesheet_directory_uri().'/assets/images/wow.png" alt="' . esc_attr( $member['name'] ) . '" title="WoW Armory"></a>';
                                     echo '</div>';
                                 echo '</div>';
                             echo '</div>';
-                        echo '</div>';
                         echo '</div>';
                     }
 
