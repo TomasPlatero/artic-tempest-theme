@@ -105,10 +105,11 @@ if (class_exists('WPBakeryShortCode')) {
             $region = get_option("blizzard_api_region");
             $raid_leader_name = $raid_leader_info['name'];
             $raid_leader_realm = sanitize_title($raid_leader_info['realm']);
+            $gender = isset($raid_leader_info['gender']) && strtolower($raid_leader_info['gender']) === 'female' ? 'female' : 'male';
 
             // URL de iconos
             $base_path = get_stylesheet_directory_uri() . '/assets/images';
-            $race_icon_url = "{$base_path}/race_{$race_name}.jpg";
+            $race_icon_url = "{$base_path}/race_{$race_name}_{$gender}.jpg";
             $class_icon_url = "{$base_path}/{$class_name}.jpg";
 
             // URLs externas
