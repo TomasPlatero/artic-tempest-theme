@@ -65,24 +65,27 @@ if (class_exists('WPBakeryShortCode')) {
             $css = $atts['css'];
             $css_animation = $atts['css_animation'];
 
-            // Obtener datos de RaiderIO
-            $roster_data = get_transient('blizzard_guild_roster_data');
+            // Obtener datos de RaiderIO desde los datos almacenados en la opción
+            $roster_data = get_option('blizzard_guild_members');
+
+            if (empty($roster_data)) {
+                return '<p>' . esc_html__('No data found for Raid Leader.', 'alchemists') . '</p>';
+            }
 
             // Filtrar por el rango de Raid Leader (1)
-            $raid_leaders = array_filter($roster_data['members'], function ($member) {
-                return $member['rank'] === 1;
+            $raid_leaders = array_filter($roster_data, function ($member) {
+                return isset($member['rank']) && $member['rank'] === 1;
             });
+
+            if (empty($raid_leaders)) {
+                return '<p>' . esc_html__('No Raid Leader found.', 'alchemists') . '</p>';
+            }
 
             $raid_leader_info = reset($raid_leaders); // Obtener el primer Raid Leader
 
-            $raid_leader = get_transient("raiderio_member_" . $raid_leader_info['character']['name']);
-            $raid_leader_name = $raid_leader['name'] ?? '';
-            $raid_leader_class = $raid_leader['class'] ?? '';
-            $raid_leader_realm = $raid_leader['realm'] ?? '';
-
             // Definir la URL del avatar si está disponible, o usar un placeholder
-            $avatar_url = isset($raid_leader['thumbnail_url'])
-                ? esc_url($raid_leader['thumbnail_url'])
+            $avatar_url = isset($raid_leader_info['thumbnail_url'])
+                ? esc_url($raid_leader_info['thumbnail_url'])
                 : get_stylesheet_directory_uri() . '/assets/images/placeholder-140x210.jpg';
 
             // Construir clases CSS para el contenedor
@@ -96,18 +99,19 @@ if (class_exists('WPBakeryShortCode')) {
                 $wrapper_attributes[] = 'id="' . esc_attr($el_id) . '"';
             }
 
-            // Obtener la información del miembro, incluyendo la URL de la imagen
-            $class_name = isset($raid_leader['class']) ? sanitize_title($raid_leader['class']) : '';
-            $race_name = isset($raid_leader['race']) ? sanitize_title($raid_leader['race']) : '';
-            $gender = isset($raid_leader['gender']) && strtolower($raid_leader['gender']) === 'female' ? 'female' : 'male';
+            // Construir la URL de la raza y clase
+            $class_name = isset($raid_leader_info['class']) ? sanitize_title($raid_leader_info['class']) : '';
+            $race_name = isset($raid_leader_info['race']) ? sanitize_title($raid_leader_info['race']) : '';
             $region = get_option("blizzard_api_region");
+            $raid_leader_name = $raid_leader_info['name'];
+            $raid_leader_realm = sanitize_title($raid_leader_info['realm']);
 
-            // Construir la URL del icono de la raza y clase
+            // URL de iconos
             $base_path = get_stylesheet_directory_uri() . '/assets/images';
-            $race_icon_url = "{$base_path}/race_{$race_name}_{$gender}.jpg";
+            $race_icon_url = "{$base_path}/race_{$race_name}.jpg";
             $class_icon_url = "{$base_path}/{$class_name}.jpg";
 
-            // Definir las URL para perfiles en otros sitios
+            // URLs externas
             $raiderio_url = "https://raider.io/characters/{$region}/{$raid_leader_realm}/{$raid_leader_name}";
             $warcraftlogs_url = "https://www.warcraftlogs.com/character/{$region}/{$raid_leader_realm}/{$raid_leader_name}";
             $wow_url = "https://worldofwarcraft.blizzard.com/es-es/character/{$region}/{$raid_leader_realm}/{$raid_leader_name}";
@@ -131,40 +135,36 @@ if (class_exists('WPBakeryShortCode')) {
                                             <h1 class="alc-staff__header-name">
                                                 <?php echo esc_html($raid_leader_name); ?>
                                             </h1>
-                                            <?php if ($raid_leader_class) : ?>
-                                                <span class="alc-staff__header-role">
-                                                    <?php echo esc_html($title); ?>
-                                                </span>
-                                            <?php endif; ?>
+                                            <span class="alc-staff__header-role">
+                                                <?php echo esc_html($title); ?>
+                                            </span>
                                         </header>
                                         <p><?php echo esc_html($sobre_rl); ?></p>
-                                        <?php if (!empty($title)) : ?>
-                                            <div class="player-icons">
-                                                <div class="race-class">
-                                                    <?php if ($race_name) : ?>
-                                                        <figure class="team-roster__race-icon">
-                                                            <img src="<?php echo esc_url($race_icon_url); ?>" alt="<?php echo esc_attr($race_name); ?>">
-                                                        </figure>
-                                                    <?php endif; ?>
-                                                    <?php if ($class_name) : ?>
-                                                        <figure class="team-roster__class-icon">
-                                                            <img src="<?php echo esc_url($class_icon_url); ?>" alt="<?php echo esc_attr($class_name); ?>">
-                                                        </figure>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <div class="social-icons">
-                                                    <a href="<?php echo esc_url($raiderio_url); ?>" target="_blank">
-                                                        <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/raiderio.png'); ?>" alt="Raider.IO">
-                                                    </a>
-                                                    <a href="<?php echo esc_url($warcraftlogs_url); ?>" target="_blank">
-                                                        <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/warcraftlogs.png'); ?>" alt="Warcraft Logs">
-                                                    </a>
-                                                    <a href="<?php echo esc_url($wow_url); ?>" target="_blank">
-                                                        <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/wow.png'); ?>" alt="World of Warcraft">
-                                                    </a>
-                                                </div>
+                                        <div class="player-icons">
+                                            <div class="race-class">
+                                                <?php if ($race_name) : ?>
+                                                    <figure class="team-roster__race-icon">
+                                                        <img src="<?php echo esc_url($race_icon_url); ?>" alt="<?php echo esc_attr($race_name); ?>">
+                                                    </figure>
+                                                <?php endif; ?>
+                                                <?php if ($class_name) : ?>
+                                                    <figure class="team-roster__class-icon">
+                                                        <img src="<?php echo esc_url($class_icon_url); ?>" alt="<?php echo esc_attr($class_name); ?>">
+                                                    </figure>
+                                                <?php endif; ?>
                                             </div>
-                                        <?php endif; ?>
+                                            <div class="social-icons">
+                                                <a href="<?php echo esc_url($raiderio_url); ?>" target="_blank">
+                                                    <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/raiderio.png'); ?>" alt="Raider.IO">
+                                                </a>
+                                                <a href="<?php echo esc_url($warcraftlogs_url); ?>" target="_blank">
+                                                    <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/warcraftlogs.png'); ?>" alt="Warcraft Logs">
+                                                </a>
+                                                <a href="<?php echo esc_url($wow_url); ?>" target="_blank">
+                                                    <img decoding="async" src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/wow.png'); ?>" alt="World of Warcraft">
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
